@@ -19,6 +19,7 @@
   "homepage": "https://github.com/chingu-voyages/v43-tier3-team-43#readme",
   "dependencies": {
     "express": "^4.17.1",
+    "react": "^18.2.0",
     "socket.io": "^1.2.0"
   }
 }
