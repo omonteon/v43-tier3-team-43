@@ -1,29 +1,29 @@
 "use strict";
 
-//Defining some global utility variables
-var isChannelReady = false;
-var isInitiator = false;
-var isStarted = false;
-var localStream;
-var pc;
-var remoteStream;
-var turnReady;
+//Defining some global utility letiables
+let isChannelReady = false;
+let isInitiator = false;
+let isStarted = false;
+let localStream;
+let pc;
+let remoteStream;
+let turnReady;
 
 //Initialize turn/stun server here
 //turnconfig will be defined in public/js/config.js
-var pcConfig = turnConfig;
+let pcConfig = turnConfig;
 
 //Set local stream constraints
-var localStreamConstraints = {
+let localStreamConstraints = {
   audio: true,
   video: true,
 };
 
 // Prompting for room name:
-var room = prompt("Enter room name:");
+let room = prompt("Enter room name:");
 
 //Initializing socket.io
-var socket = io.connect();
+let socket = io.connect();
 
 //Ask server to add in the room if room name is provided by the user
 if (room !== "") {
@@ -77,7 +77,7 @@ socket.on("message", function (message, room) {
   } else if (message.type === "answer" && isStarted) {
     pc.setRemoteDescription(new RTCSessionDescription(message));
   } else if (message.type === "candidate" && isStarted) {
-    var candidate = new RTCIceCandidate({
+    let candidate = new RTCIceCandidate({
       sdpMLineIndex: message.label,
       candidate: message.candidate,
     });
@@ -94,8 +94,8 @@ function sendMessage(message, room) {
 }
 
 //Displaying Local Stream and Remote Stream on webpage
-var localVideo = document.querySelector("#localVideo");
-var remoteVideo = document.querySelector("#remoteVideo");
+let localVideo = document.querySelector("#localVideo");
+let remoteVideo = document.querySelector("#remoteVideo");
 console.log("Going to find Local media");
 navigator.mediaDevices
   .getUserMedia(localStreamConstraints)
