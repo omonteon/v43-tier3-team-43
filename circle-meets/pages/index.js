@@ -22,19 +22,26 @@ export default function Home() {
       </Head>
 
       <main className="bg-purple text-center flex-auto">
-        <h1
-          className="text-4xl text-left m-4
+        <header>
+          <h1
+            className="text-4xl text-left m-4
         "
-        >
-          <span className="text-yellow">Com</span>
-          <span className="text-cyan">mu</span>
-          <span className="text-red">nix</span>
-        </h1>
-        <p className="text-left m-4 text-yellow">
-          {" "}
-          A video or text chat. Sign up today.
-        </p>
-        <h1 className="text-green-600">Lets join a room!</h1>
+          >
+            <span className="text-yellow">Com</span>
+            <span className="text-cyan">mu</span>
+            <span className="text-red">nix</span>
+            <p className="text-right text-lg">
+              <span className="m-2">Sign Up</span>
+              <span className="m-2">Log In</span>
+            </p>
+          </h1>
+
+          <p className="text-left m-4 text-yellow">
+            {" "}
+            A video or text chat. Sign up today.
+          </p>
+        </header>
+        <h1 className="text-cyan text-4xl m-10">Lets join a room!</h1>
         <input onChange={(e) => setRoomName(e.target.value)} value={roomName} />
         <button onClick={joinRoom} type="button">
           Join Room
