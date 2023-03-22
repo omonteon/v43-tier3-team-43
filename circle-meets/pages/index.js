@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Native WebRTC API with NextJS</title>
+        <title>CircleMeets</title>
         <meta
           name="description"
           content="Use Native WebRTC API for video conferencing"
@@ -23,7 +23,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <h1>Lets join a room!</h1>
+        <h1 className="text-green-600">Lets join a room!</h1>
         <input
           onChange={(e) => setRoomName(e.target.value)}
           value={roomName}
