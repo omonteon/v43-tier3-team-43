@@ -1,7 +1,6 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import styles from "../styles/Home.module.css";
 
 export default function Home() {
   const router = useRouter();
@@ -12,9 +11,9 @@ export default function Home() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className="flex flex-col min-h-screen ">
       <Head>
-        <title>CircleMeets</title>
+        <title>Communix</title>
         <meta
           name="description"
           content="Use Native WebRTC API for video conferencing"
@@ -22,21 +21,39 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className="text-green-600">Lets join a room!</h1>
-        <input
-          onChange={(e) => setRoomName(e.target.value)}
-          value={roomName}
-          className={styles["room-name"]}
-        />
-        <button
-          onClick={joinRoom}
-          type="button"
-          className={styles["join-room"]}
+      <main className="bg-purple text-center flex-auto">
+        <h1
+          className="text-4xl text-left m-4
+        "
         >
+          <span className="text-yellow">Com</span>
+          <span className="text-cyan">mu</span>
+          <span className="text-red">nix</span>
+        </h1>
+        <p className="text-left m-4 text-yellow">
+          {" "}
+          A video or text chat. Sign up today.
+        </p>
+        <h1 className="text-green-600">Lets join a room!</h1>
+        <input onChange={(e) => setRoomName(e.target.value)} value={roomName} />
+        <button onClick={joinRoom} type="button">
           Join Room
         </button>
       </main>
+      <footer className=" mt-auto bg-lightpurple">
+        <div class="w-full mx-auto container md:p-6 p-4 md:flex md:items-center md:justify-between">
+          <span
+            className="text-opacity-25 sm:text-cen
+          "
+          >
+            {" "}
+            Made with ❤️ by Ethan Lee & Tijana{" "}
+          </span>
+          <span className="text-sm text-gray-500 sm:text-center">
+            © 2023 Communix is copyright 2023
+          </span>
+        </div>
+      </footer>
     </div>
   );
 }
