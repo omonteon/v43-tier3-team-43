@@ -1,0 +1,43 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// create a prisma model with the following fields: id, firstName, lastName, username, email, password, bio
+
+model User {
+  id        Int      @id @default(autoincrement()) 
+  messages  Message[]
+  firstName String
+  lastName  String
+  username  String   @unique
+  email     String   @unique
+  password  String
+  bio       String?
+}
+
+
+model Message {
+  id             Int      @id @default(autoincrement())
+  body           String
+  senderId       Int      
+  sender         User     @relation(fields: [senderId], references: [id])
+  //conversation   Conversation     @relation(fields: [conversationId], references: [id])
+  conversationId Int
+  @@index([senderId], name: "sender")
+  //@@index([conversationId], name: "conversation")
+}
+
+// have to figure out how to create a many to many relationship because that's also not supported??
+
+//model Conversation {
+//  id           Int      @id @default(autoincrement())
+//  participantId Int
+//  participants User[]   @relation(fields: [participantId], references: [id])
+//  messages     Message[]
+//}
