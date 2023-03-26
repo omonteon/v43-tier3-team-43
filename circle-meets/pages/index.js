@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import styles from "../styles/Home.module.css";
 
+//we'll have to set the conversation id as the room name I think
+
 export default function Home() {
   const router = useRouter();
   const [roomName, setRoomName] = useState("");
@@ -14,16 +16,16 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>CircleMeets</title>
+        <title>Communix</title>
         <meta
           name="description"
-          content="Use Native WebRTC API for video conferencing"
+          content="Video chatting for nerds"
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main className={styles.main}>
-        <h1 className="text-green-600">Lets join a room!</h1>
+        <h1 className="text-green-600"><span className='text-communix-green'>Com</span>mu<span className='communix-red'>nix</span></h1>
         <input
           onChange={(e) => setRoomName(e.target.value)}
           value={roomName}
