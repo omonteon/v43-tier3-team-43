@@ -1,44 +1,41 @@
-import Head from "next/head";
-import { useRouter } from "next/router";
-import { useState } from "react";
-import styles from "../styles/Home.module.css";
+import Head from 'next/head'
+import React, { useState } from 'react'
+import { DndContext } from '@dnd-kit/core'
 
-//we'll have to set the conversation id as the room name I think
+import Dropzone from './components/Dropzone'
+import Login from './components/Login'
+import Register from './components/Register'
 
 export default function Home() {
-  const router = useRouter();
-  const [roomName, setRoomName] = useState("");
+  const [parent, setParent] = useState(null)
 
-  const joinRoom = () => {
-    router.push(`/room/${roomName || Math.random().toString(36).slice(2)}`);
-  };
+  const draggable = (<Login id="draggable" />)
 
   return (
-    <div className={styles.container}>
+    <div id='droppable'>
       <Head>
         <title>Communix</title>
         <meta
-          name="description"
-          content="Video chatting for nerds"
+          name='description'
+          content='Video chatting for nerds'
         />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel='icon' href='/favicon.ico' />
       </Head>
-
-      <main className={styles.main}>
-        <h1 className="text-green-600"><span className='text-communix-green'>Com</span>mu<span className='communix-red'>nix</span></h1>
-        <input
-          onChange={(e) => setRoomName(e.target.value)}
-          value={roomName}
-          className={styles["room-name"]}
-        />
-        <button
-          onClick={joinRoom}
-          type="button"
-          className={styles["join-room"]}
-        >
-          Join Room
-        </button>
+      <main className='main white-grid' >
+        <header className='bg-communixWhite p-8 inline-block' >
+          <h1 className='text-7xl font-dm'><span className='text-communixPurple'>Com</span><span className='text-communixGreen'>mu</span><span className='text-communixRed'>nix</span></h1>
+        </header>
       </main>
+      <DndContext onDragEnd={handleDragEnd}>
+        {!parent ? draggable : null}
+        <Dropzone id="droppable">
+          {parent === "droppable" ? draggable : 'Drop here'}
+        </Dropzone>
+      </DndContext>
     </div>
   );
+
+  function handleDragEnd({ over }) {
+    setParent(over ? over.id : null)
+  }
 }
