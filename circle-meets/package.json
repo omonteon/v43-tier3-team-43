@@ -16,6 +16,10 @@
     "eslint-config-next": "13.2.4",
     "next": "13.2.4",
     "next-auth": "^4.20.1",
+<<<<<<< HEAD
+=======
+    "prisma": "^4.11.0",
+>>>>>>> 860a97e767b27c4bd83765386d700a61b447f02e
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "socket.io": "^4.6.1",
