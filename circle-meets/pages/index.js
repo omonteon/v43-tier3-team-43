@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import Login from "./components/login-btn";
 
 export default function Home() {
   const router = useRouter();
@@ -31,8 +32,7 @@ export default function Home() {
             <span className="text-cyan">mu</span>
             <span className="text-red">nix</span>
             <p className="text-right text-lg">
-              <span className="m-2">Sign Up</span>
-              <span className="m-2">Log In</span>
+              <Login />
             </p>
           </h1>
 
