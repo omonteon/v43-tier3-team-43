@@ -38,7 +38,7 @@ export default function Home() {
 
           <p className="text-left m-4 text-yellow">
             {" "}
-            A video or text chat. Sign up today.
+            A video or text chat. Sign in using Github.
           </p>
         </header>
         <h1 className="text-cyan text-4xl m-10">Lets join a room!</h1>
