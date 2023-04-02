@@ -40,8 +40,8 @@ export default function Home() {
           </p>
         </header>
         <h1 className="text-cyan text-4xl m-10">Lets join a room!</h1>
-        <input onChange={(e) => setRoomName(e.target.value)} value={roomName} />
-        <button onClick={joinRoom} type="button">
+        <input onChange={(e) => setRoomName(e.target.value)} />
+        <button type="button">
           Join Room
         </button>
       </main>
