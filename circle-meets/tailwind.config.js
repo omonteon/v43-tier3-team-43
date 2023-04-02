@@ -9,6 +9,7 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+<<<<<<< HEAD
     extend: {
       fontFamily: {
         'dm': ["DM Serif Display"]
@@ -33,6 +34,16 @@ module.exports = {
       communixWhite: '#F4F1DE',
       communixPurple: '#3D405B'
     }
+=======
+    extend: {},
+    colors: {
+      purple: "#3D405B",
+      yellow: "#F2CC8F",
+      cyan: "#81B29A",
+      red: "#E07A57",
+      lightpurple: "#A1A0D6",
+    },
+>>>>>>> 64917f7cf50122e35544defdac64c1cb8a5a1101
   },
   plugins: [],
 };
