@@ -30,7 +30,7 @@ export default function AddFriend() {
       </Head>
       <main className="font-dm flex flex-col text-center min-h-screen bg-communixRed p-2 justify-center  items-center md:block md:items-start md:text-left">
         <BackButton />
-        <div className="md:mt-12 sm:p-{16}">
+        <div className="md:mt-12 md:ml-4">
           <h1 className="text-cyan text-4xl mb-1">Add a friend</h1>
           <label htmlFor="friendId" className="inline-block">
             Enter their id or email:
