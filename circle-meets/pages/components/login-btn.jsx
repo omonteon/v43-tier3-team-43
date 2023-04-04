@@ -1,4 +1,5 @@
 import { useSession, signIn, signOut } from "next-auth/react";
+import React from "react";
 
 export default function Login() {
   const { data: session } = useSession();
@@ -12,7 +13,7 @@ export default function Login() {
   }
   return (
     <>
-      Not signed in <br />
+      You are not signed in <br />
       <button onClick={() => signIn()}>Sign in</button>
     </>
   );
