@@ -3,44 +3,23 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url = env("DATABASE_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
-  relationMode = "prisma"
+  relationMode      = "prisma"
 }
-
-model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
-
-
-  @@unique([provider, providerAccountId])
-}
-
-// create a prisma model with the following fields: id, firstName, lastName, username, email, password, bio
 
 model User {
-  id        Int      @id @default(autoincrement()) 
-  messages  Message[]
-  firstName String
-  lastName  String
-  username  String   @unique
-  email     String   @unique
+  id            Int       @id @default(autoincrement())
+  firstName     String
+  lastName      String
+  username      String    @unique
+  email         String    @unique
+  password      String
+  bio           String?
   emailVerified DateTime?
   image         String?
-  password  String
-  bio       String?
-  conversations Conversation[]
+  messages      Message[]
 }
 
 model Session {
@@ -48,7 +27,6 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
 }
 
 model VerificationToken {
@@ -59,20 +37,98 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
 model Message {
-  id             Int      @id @default(autoincrement())
+  id             Int    @id @default(autoincrement())
   body           String
-  senderId       Int      
-  sender         User     @relation(fields: [senderId], references: [id])
-  //conversation   Conversation     @relation(fields: [conversationId], references: [id])
+  senderId       Int
   conversationId Int
-  @@index([senderId], name: "sender")
-  conversations Conversation[]
+  sender         User   @relation(fields: [senderId], references: [id])
+
+  @@index([senderId], map: "sender")
+}
+
+model ConversationToMessage {
+  A Int
+  B Int
+
+  @@unique([A, B], map: "_ConversationToMessage_AB_unique")
+  @@index([B], map: "_ConversationToMessage_B_index")
+  @@map("_ConversationToMessage")
+}
+
+model ConversationToUser {
+  A Int
+  B Int
+
+  @@unique([A, B], map: "_ConversationToUser_AB_unique")
+  @@index([B], map: "_ConversationToUser_B_index")
+  @@map("_ConversationToUser")
+}
+
+model vt_HOLD_07cf6095cffd564f90067da27fc3ae08_20230404183609 {
+  id        Int     @id @default(autoincrement())
+  firstName String  @db.VarChar(100)
+  lastName  String  @db.VarChar(100)
+  username  String  @db.VarChar(50)
+  password  String  @db.VarChar(255)
+  email     String  @db.VarChar(200)
+  photoURL  String? @db.VarChar(255)
+  salt      String? @db.VarChar(255)
+  bio       String? @db.VarChar(255)
+
+  @@map("_vt_HOLD_07cf6095cffd564f90067da27fc3ae08_20230404183609")
+}
+
+model vt_HOLD_0d4d9646ee2c59a481bc234e2d732207_20230404183604 {
+  id      Int  @id
+  blocker Int?
+  blocked Int?
+
+  @@map("_vt_HOLD_0d4d9646ee2c59a481bc234e2d732207_20230404183604")
+}
+
+model vt_HOLD_78f11219f25f57a989bdb4c9506c5a66_20230404183607 {
+  id          Int  @id
+  requesterID Int?
+  acceptorID  Int?
+
+  @@unique([requesterID, acceptorID], map: "requesterID")
+  @@map("_vt_HOLD_78f11219f25f57a989bdb4c9506c5a66_20230404183607")
+}
+
+model vt_HOLD_94824a38c558577e852e75344e54afe7_20230404183608 {
+  id           Int     @id
+  body         String? @db.Text
+  sender       Int?
+  conversation Int?
+
+  @@map("_vt_HOLD_94824a38c558577e852e75344e54afe7_20230404183608")
+}
+
+model vt_HOLD_cf03c4992e5b54739efaac757fe7e9fe_20230404183606 {
+  id          Int  @id
+  participant Int?
+
+  @@map("_vt_HOLD_cf03c4992e5b54739efaac757fe7e9fe_20230404183606")
+}
+
+model Account {
+  id                String  @id
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
 }
 
 model Conversation {
-  id            Int      @id @default(autoincrement())
-  participants  User[]  
-  messages      Message[]
+  id Int @id @default(autoincrement())
 }
