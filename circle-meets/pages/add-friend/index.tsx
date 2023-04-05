@@ -1,9 +1,22 @@
 import React, { useState } from "react";
 import Head from "next/head";
 import BackButton from "../components/BackButton";
+import { PrismaClient } from "@prisma/client"
+import { DebounceInput } from 'react-debounce-input'
 
-export default function AddFriend() {
+const prisma = new PrismaClient()
+
+export default function AddFriend({ users }) {
   const [friendId, setFriendId] = useState("");
+
+  const [search, setSearch] = useState('')
+    const filteredUsers = search == '' ? [] : users.filter(user => user.displayName.toLowerCase().includes(search.toLowerCase()))
+
+    console.log(filteredUsers, search, users[0].displayName.toLowerCase().includes(search.toLowerCase()))
+
+    function filterUsers(e) {
+        setSearch(e.target.value)
+    }
 
   const handleAddFriend = () => {
     console.log("Add new friend");
@@ -37,12 +50,16 @@ export default function AddFriend() {
           </label>
           <div className="relative mt-6 sm:w-64">
             <div className="border-2 border-black rounded-md px-2 flex items-center">
-              <input
-                type="text"
-                className="bg-transparent outline-none flex-1 h-8"
-                value={friendId}
-                onChange={handleChangeFriendId}
-              />
+              
+              <DebounceInput 
+                className="bg-communixRed outline-none flex-1 h-8"
+                type="text" 
+                placeholder="Search for users..." 
+                value={search} 
+                onChange={(e) => filterUsers(e)} 
+                minLength={1}
+                debounceTimeout={300}
+            />
               <div
                 className="cursor-pointer"
                 role="button"
@@ -66,10 +83,28 @@ export default function AddFriend() {
                   />
                 </svg>
               </div>
+              
             </div>
+            <ul>
+                {filteredUsers.map(user => (
+                    <li key={user.id}>{user.displayName}</li>
+                ))}
+            </ul>
           </div>
         </div>
       </main>
     </>
   );
 }
+
+export async function getStaticProps() {
+  const users = await prisma.user.findMany()
+  return {
+      props: { users: users}
+  }
+}
+
+
+
+
+

@@ -16,7 +16,9 @@ model BlockedUser {
 }
 
 model Conversation {
-  id Int @id @default(autoincrement())
+  id             Int @id @default(autoincrement())
+  userId         Int
+  conversationId Int
 }
 
 model Message {
