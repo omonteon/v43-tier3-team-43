@@ -4,22 +4,20 @@ import { useState } from "react";
 import Login from "./components/login-btn";
 
 export default function Home() {
-  const router = useRouter();
-  const [roomName, setRoomName] = useState("");
+  const [parent, setParent] = useState(null)
 
-  const joinRoom = () => {
-    router.push(`/room/${roomName || Math.random().toString(36).slice(2)}`);
-  };
+  const draggable = (<Login id="draggable" />)
 
   return (
+
     <div className="flex flex-col min-h-screen ">
       <Head>
         <title>Communix</title>
         <meta
-          name="description"
-          content="Use Native WebRTC API for video conferencing"
+          name='description'
+          content='Video chatting for nerds'
         />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel='icon' href='/favicon.ico' />
       </Head>
 
       <main className="bg-purple text-center flex-auto">
@@ -42,8 +40,8 @@ export default function Home() {
           </p>
         </header>
         <h1 className="text-cyan text-4xl m-10">Lets join a room!</h1>
-        <input onChange={(e) => setRoomName(e.target.value)} value={roomName} />
-        <button onClick={joinRoom} type="button">
+        <input onChange={(e) => setRoomName(e.target.value)} />
+        <button type="button">
           Join Room
         </button>
       </main>
@@ -63,4 +61,8 @@ export default function Home() {
       </footer>
     </div>
   );
+
+  function handleDragEnd({ over }) {
+    setParent(over ? over.id : null)
+  }
 }
