@@ -9,32 +9,8 @@ datasource db {
   relationMode      = "prisma"
 }
 
-model User {
-  id            Int       @id @default(autoincrement())
-  firstName     String
-  lastName      String
-  username      String    @unique
-  email         String    @unique
-  password      String
-  bio           String?
-  emailVerified DateTime?
-  image         String?
-  messages      Message[]
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+model Conversation {
+  id Int @id @default(autoincrement())
 }
 
 model Message {
@@ -42,7 +18,6 @@ model Message {
   body           String
   senderId       Int
   conversationId Int
-  sender         User   @relation(fields: [senderId], references: [id])
 
   @@index([senderId], map: "sender")
 }
@@ -65,70 +40,50 @@ model ConversationToUser {
   @@map("_ConversationToUser")
 }
 
-model vt_HOLD_07cf6095cffd564f90067da27fc3ae08_20230404183609 {
-  id        Int     @id @default(autoincrement())
-  firstName String  @db.VarChar(100)
-  lastName  String  @db.VarChar(100)
-  username  String  @db.VarChar(50)
-  password  String  @db.VarChar(255)
-  email     String  @db.VarChar(200)
-  photoURL  String? @db.VarChar(255)
-  salt      String? @db.VarChar(255)
-  bio       String? @db.VarChar(255)
+model accounts {
+  id                   Int       @id @default(autoincrement())
+  compound_id          String    @unique(map: "compound_id") @db.VarChar(255)
+  user_id              Int
+  provider_type        String    @db.VarChar(255)
+  provider_id          String    @db.VarChar(255)
+  provider_account_id  String    @db.VarChar(255)
+  refresh_token        String?   @db.Text
+  access_token         String?   @db.Text
+  access_token_expires DateTime? @db.Timestamp(6)
+  created_at           DateTime  @default(now()) @db.Timestamp(6)
+  updated_at           DateTime  @default(now()) @db.Timestamp(6)
 
-  @@map("_vt_HOLD_07cf6095cffd564f90067da27fc3ae08_20230404183609")
+  @@index([provider_account_id], map: "provider_account_id")
+  @@index([provider_id], map: "provider_id")
+  @@index([user_id], map: "user_id")
+  @@unique([provider_id, provider_account_id], name: "provider_providerAccountId")
 }
 
-model vt_HOLD_0d4d9646ee2c59a481bc234e2d732207_20230404183604 {
-  id      Int  @id
-  blocker Int?
-  blocked Int?
-
-  @@map("_vt_HOLD_0d4d9646ee2c59a481bc234e2d732207_20230404183604")
+model sessions {
+  id            Int      @id @default(autoincrement())
+  user_id       Int
+  expires       DateTime @db.Timestamp(6)
+  session_token String   @unique(map: "session_token") @db.VarChar(255)
+  access_token  String   @unique(map: "access_token") @db.VarChar(255)
+  created_at    DateTime @default(now()) @db.Timestamp(6)
+  updated_at    DateTime @default(now()) @db.Timestamp(6)
 }
 
-model vt_HOLD_78f11219f25f57a989bdb4c9506c5a66_20230404183607 {
-  id          Int  @id
-  requesterID Int?
-  acceptorID  Int?
-
-  @@unique([requesterID, acceptorID], map: "requesterID")
-  @@map("_vt_HOLD_78f11219f25f57a989bdb4c9506c5a66_20230404183607")
+model users {
+  id             Int       @id @default(autoincrement())
+  name           String?   @db.VarChar(255)
+  email          String?   @unique(map: "email") @db.VarChar(255)
+  email_verified DateTime? @db.Timestamp(6)
+  image          String?   @db.VarChar(255)
+  created_at     DateTime  @default(now()) @db.Timestamp(6)
+  updated_at     DateTime  @default(now()) @db.Timestamp(6)
 }
 
-model vt_HOLD_94824a38c558577e852e75344e54afe7_20230404183608 {
-  id           Int     @id
-  body         String? @db.Text
-  sender       Int?
-  conversation Int?
-
-  @@map("_vt_HOLD_94824a38c558577e852e75344e54afe7_20230404183608")
-}
-
-model vt_HOLD_cf03c4992e5b54739efaac757fe7e9fe_20230404183606 {
-  id          Int  @id
-  participant Int?
-
-  @@map("_vt_HOLD_cf03c4992e5b54739efaac757fe7e9fe_20230404183606")
-}
-
-model Account {
-  id                String  @id
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  @@unique([provider, providerAccountId])
-}
-
-model Conversation {
-  id Int @id @default(autoincrement())
+model verification_requests {
+  id         Int      @id @default(autoincrement())
+  identifier String   @db.VarChar(255)
+  token      String   @unique(map: "token") @db.VarChar(255)
+  expires    DateTime @db.Timestamp(6)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @db.Timestamp(6)
 }

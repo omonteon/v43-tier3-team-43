@@ -49,7 +49,7 @@ export default function Home() {
         </button>
       </main>
       <footer className=" mt-auto bg-lightpurple">
-        <div class="w-full mx-auto container md:p-6 p-4 md:flex md:items-center md:justify-between">
+        <div className="w-full mx-auto container md:p-6 p-4 md:flex md:items-center md:justify-between">
           <span
             className="text-opacity-25 sm:text-cen
           "
