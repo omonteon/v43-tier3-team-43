@@ -55,7 +55,7 @@ export default function Home() {
           "
           >
             {" "}
-            Made with ❤️ by Ethan Lee & Tijana{" "}
+            Made with ❤️ by Ethan Lee, Omar & Tijana{" "}
           </span>
           <span className="text-sm text-gray-500 sm:text-center">
             © 2023 Communix is copyright 2023
