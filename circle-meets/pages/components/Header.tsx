@@ -7,8 +7,8 @@ function Header() {
   const router = useRouter();
 
   return (
-    <header className="pt-3 pb-3 px-10 flex justify-between border-b-2">
-      <div className="flex flex-1 gap-6">
+    <header className="pt-3 pb-3 px-2 sm:px-10  flex justify-between border-b-2 b bg-communixWhite">
+      <div className="flex flex-1 gap-1 sm:gap-6">
         <input
           placeholder="search"
           className="bg-communixWhite border-2 rounded h-10 p-1 text-l w-1/3  xl:w-1/4"
@@ -24,7 +24,7 @@ function Header() {
         </button>
       </div>
       <div className="flex items-center gap-2 justify-self-end">
-        <p className="text-l">
+        <p className="text-l hidden sm:block">
           Welcome,{" "}
           <a href="#" className="underline">
             Edward
