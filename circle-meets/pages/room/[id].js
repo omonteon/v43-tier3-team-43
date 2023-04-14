@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import useSocket from "../../hooks/useSocket";
+import Image from "next/image";
 
 const ICE_SERVERS = {
   iceServers: [
@@ -14,7 +15,8 @@ const ICE_SERVERS = {
 const Room = () => {
   useSocket();
   const [micActive, setMicActive] = useState(true);
-  const [cameraActive, setCameraActive] = useState(true);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [name, setName] = useState("");
 
   const router = useRouter();
   const userVideoRef = useRef();
@@ -25,6 +27,9 @@ const Room = () => {
   const hostRef = useRef(false);
 
   const { id: roomName } = router.query;
+  useEffect(() => {
+    window ? localStorage.getItem("nickname") : ""
+  }, []);
   useEffect(() => {
     socketRef.current = io();
     // First we join a room
@@ -249,18 +254,31 @@ const Room = () => {
   };
 
   return (
-    <div>
-      <video autoPlay ref={userVideoRef} />
-      <video autoPlay ref={peerVideoRef} />
-      <button onClick={toggleMic} type="button">
-        {micActive ? "Mute Mic" : "UnMute Mic"}
-      </button>
-      <button onClick={leaveRoom} type="button">
-        Leave
-      </button>
-      <button onClick={toggleCamera} type="button">
-        {cameraActive ? "Stop Camera" : "Start Camera"}
-      </button>
+    <div className="white-grid flex flex-col items-center">
+      <h2 className="absolute font-dm text-communixPurple left-5 text-3xl">{name}</h2>
+      <div className="flex flex-col justify-end relative left-80 top-32">
+        <button onClick={toggleMic} type="button" className="border-2 border-communixPurple rounded-md bg-communixRed mr-4">
+          {micActive ? <img src="/mute.png" alt="toggle mic" className="h-8 p-2 py-1" /> : <img src="/mic.png" alt="toggle mic" className="h-8 p-2 py-1" />}
+        </button>
+        <button onClick={leaveRoom} type="button" className="border-2 border-communixPurple rounded-md bg-communixRed mr-4">
+          <img src="/logout.png" alt="leave chat" className="h-8 p-2 py-1" />
+        </button>
+        <button onClick={toggleCamera} type="button" className="border-2 border-communixPurple rounded-md bg-communixRed">
+          {cameraActive ? <img src="/no-video.png" alt="toggle camera" className="h-8 p-2 py-1" /> : <img src="/video-camera.png" alt="toggle camera" className="h-8 p-2 py-1" />}
+        </button>
+      </div>
+      <video autoPlay ref={userVideoRef} className={cameraActive ? "bg-white border-2 border-communixRed h-80 aspect-video" : "hidden"} />
+      {!cameraActive &&
+        <div className="bg-white flex flex-col justify-end items-center border-2 border-communixRed h-80  aspect-video">
+          <img
+            src="/shy.png"
+            alt="shy person"
+            className="h-72"
+          />
+        </div>}
+
+      <video autoPlay ref={peerVideoRef} className="h-80 aspect-video bg-communixGreen border-2 border-communixPurple" />
+
     </div>
   );
 };

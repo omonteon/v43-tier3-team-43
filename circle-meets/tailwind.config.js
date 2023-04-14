@@ -18,6 +18,7 @@ module.exports = {
       },
     },
     colors: {
+      white: '#fff',
       communixGreen: '#81B29A',
       communixYellow: '#F2CC8F',
       communixRed: '#E07A5F',
