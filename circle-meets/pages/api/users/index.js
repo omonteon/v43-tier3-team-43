@@ -1,16 +1,14 @@
-import { prismaClient } from '../../../lib/prisma';
+import { prismaClient } from "@prisma/client";
 
-const prisma = new prismaClient()
+const prisma = new prismaClient();
 
-export default async function handle() {
-
-}
+export default async function handle() {}
 
 export async function getAllUsers() {
-    const users = await prisma.user.findMany()
-    return {
-        props: {
-            users
-        }
-    }
+  const users = await prisma.user.findMany();
+  return {
+    props: {
+      users,
+    },
+  };
 }
