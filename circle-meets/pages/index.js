@@ -186,7 +186,7 @@ export default function Home() {
       </div>
       <div className="flex flex-col items-center mt-4">
         <button
-          className="px-4 py-2 text-communixWhite bg-communixGreen rounded-lg shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+          className="px-2 py-1 text-communixWhite bg-communixGreen rounded-lg shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
           onClick={startWebcam}
           disabled={localStream}
         >
@@ -194,7 +194,7 @@ export default function Home() {
         </button>
         <div className="flex mt-4">
           <button
-            className="px-4 py-2 text-communixWhite bg-communixGreen rounded shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+            className="px-2 py-1 text-communixWhite bg-communixGreen rounded shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
             onClick={createCallId}
             disabled={!localStream}
           >
@@ -203,7 +203,7 @@ export default function Home() {
         </div>
         <div className="flex mt-4">
           <label
-            className="px-4 py-2 text-communixWhite bg-communixPurple rounded-l-lg"
+            className="px-2 py-1 text-communixWhite bg-communixPurple rounded-l-lg"
             htmlFor="call-id"
           >
             Call ID
@@ -211,12 +211,12 @@ export default function Home() {
           <input
             type="text"
             id="call-id"
-            className="px-4 py-2 text-communixPurple bg-communixWhite focus:outline-none focus:ring-2 focus:ring-communixPurple focus:ring-offset-2 w-64"
+            className="px-2 py-1 text-communixPurple bg-communixWhite focus:outline-none focus:ring-2 focus:ring-communixPurple focus:ring-offset-2 w-64"
             placeholder="Enter call ID"
             onChange={(e) => setCallId(event.target.value)}
           />
           <button
-            className="px-4 py-2 text-communixWhite bg-communixGreen rounded-r-lg shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+            className="px-2 py-1 text-communixWhite bg-communixGreen rounded-r-lg shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
             onClick={joinCall}
             disabled={!localStream}
           >
@@ -225,7 +225,7 @@ export default function Home() {
         </div>
         <div className="flex mt-4">
           <button
-            className="px-4 py-2 text-communixWhite bg-communixRed rounded shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+            className="px-2 py-1 text-communixWhite bg-communixRed rounded shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
             onClick={endCall}
             disabled={!callId}
           >
