@@ -16,17 +16,9 @@ module.exports = {
       boxShadow: {
         'button': '2px 2px 0 0 #000'
       },
-      padding: {
-        '1': '.5vw',
-        '2': '1vw',
-        '3': '2vw',
-        '4': 'vw',
-        '5': '5vw',
-        '6': '6vw',
-        '7': '7vw',
-      }
     },
     colors: {
+      white: '#fff',
       communixGreen: '#81B29A',
       communixYellow: '#F2CC8F',
       communixRed: '#E07A5F',
