@@ -18,11 +18,13 @@ if (!firebase.apps.length) {
 }
 const firestore = firebase.firestore();
 
-export default function Home() {
+export default function VideoCall() {
   const router = useRouter();
   const peerConnection = useRef(null);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [micActive, setMicActive] = useState(true);
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
   const [callId, setCallId] = useState(router.query.id);
@@ -54,6 +56,12 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    if (localStream) {
+      setCameraActive(true);
+    }
+  }, [localStream]);
+
   // Setup media sources
   const startWebcam = async () => {
     const _localStream = await navigator.mediaDevices.getUserMedia({
@@ -78,8 +86,6 @@ export default function Home() {
     remoteVideoRef.current.srcObject = _remoteStream;
     setLocalStream(_localStream);
     setRemoteStream(_remoteStream);
-    // webcamVideo.srcObject = localStream;
-    // remoteVideo.srcObject = remoteStream;
   };
 
   // Create an offer
@@ -171,53 +177,109 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-communixPurple">
-      <h1 className="text-3xl font-bold text-center text-communixWhite my-8">
-        Communix Video Chat
-      </h1>
-      <div className="flex flex-wrap justify-center space-x-4">
-        <video
-          className="w-96 h-72 rounded-lg border-2 border-communixWhite shadow-lg"
-          ref={localVideoRef}
-          autoPlay
-          muted
-        />
-        <video
-          className="w-96 h-72 rounded-lg border-2 border-communixWhite shadow-lg"
-          ref={remoteVideoRef}
-          autoPlay
-          muted
-        />
-      </div>
-      <div className="flex flex-col items-center mt-4">
-        <button
-          className="px-2 py-1 text-communixWhite bg-communixGreen rounded-lg shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-          onClick={startWebcam}
-          disabled={localStream}
-        >
-          Start Webcam
-        </button>
-        {router.query.id ? null : (
-          <div className="flex mt-4">
-            <button
-              className="px-2 py-1 text-communixWhite bg-communixGreen rounded shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-              onClick={createCallId}
-              disabled={!localStream}
-            >
-              Copy a new call ID
-            </button>
-          </div>
-        )}
-        <div className="flex mt-4">
+    <div className="white-grid flex flex-col items-center">
+      {/* TODO: Implement name sharing between peers */}
+      {/* <h2 className="absolute font-dm text-communixPurple left-5 text-3xl">
+          {name}
+        </h2> */}
+      {router.query.id ? null : (
+        <div className="flex flex-col gap-2 mt-4">
+          <p>{!localStream ? "Start webCam first" : null}</p>
           <button
-            className="px-2 py-1 text-communixWhite bg-communixRed rounded shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-            onClick={endCall}
+            className={`border-2 border-communixPurple rounded-md bg-communixRed py-2 px-4 ${
+              !localStream ? "opacity-80" : ""
+            }`}
+            onClick={createCallId}
+            disabled={!localStream}
           >
-            End Call
+            Copy call ID
           </button>
         </div>
+      )}
+      <div className="flex flex-col justify-end relative left-80 top-32 gap-1">
+        <button
+          onClick={() => {
+            // TODO: Implement mute
+            console.log("Not implemented yet");
+          }}
+          type="button"
+          className="border-2 border-communixPurple rounded-md bg-communixRed"
+        >
+          {micActive ? (
+            <img src="/mute.png" alt="toggle mic" className="h-8 p-2 py-1" />
+          ) : (
+            <img src="/mic.png" alt="toggle mic" className="h-8 p-2 py-1" />
+          )}
+        </button>
+        <button
+          onClick={endCall}
+          type="button"
+          className="border-2 border-communixPurple rounded-md bg-communixRed"
+        >
+          <img src="/logout.png" alt="leave chat" className="h-8 p-2 py-1" />
+        </button>
+        <button
+          onClick={() => {
+            if (!localStream) {
+              setCameraActive(true);
+              startWebcam();
+            } else {
+              setCameraActive(!cameraActive);
+              // TODO: Implement stop webcam
+            }
+          }}
+          type="button"
+          className="border-2 border-communixPurple rounded-md bg-communixRed"
+        >
+          {cameraActive ? (
+            <img
+              src="/no-video.png"
+              alt="toggle camera"
+              className="h-8 p-2 py-1"
+            />
+          ) : (
+            <img
+              src="/video-camera.png"
+              alt="toggle camera"
+              className="h-8 p-2 py-1"
+            />
+          )}
+        </button>
       </div>
-    </main>
+      <video
+        autoPlay
+        muted
+        ref={localVideoRef}
+        className={
+          cameraActive
+            ? "bg-white border-2 border-communixRed h-80 aspect-video"
+            : "hidden"
+        }
+      />
+      {!cameraActive && (
+        <div className="bg-white flex flex-col justify-end items-center border-2 border-communixRed h-80 aspect-video">
+          <img src="/shy.png" alt="shy person" className="h-72" />
+        </div>
+      )}
+
+      <div className="h-80 aspect-video bg-communixGreen border-2 border-communixPurple flex justify-center items-center">
+        {/* {remoteStream ? ( */}
+        <video
+          autoPlay
+          ref={remoteVideoRef}
+          className={`h-80 aspect-video bg-communixGreen border-2 border-communixPurple ${
+            remoteStream ? "" : "hidden"
+          }`}
+        />
+        {/* ) : ( */}
+        <img
+          src="/shy2.png"
+          alt="your partner is shy too"
+          className={`h-72 rounded-full ${remoteStream ? "hidden" : ""}`}
+        />
+        {/* )} */}
+      </div>
+    </div>
   );
 }
 

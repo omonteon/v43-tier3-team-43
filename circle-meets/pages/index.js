@@ -39,20 +39,23 @@ export default function Home() {
         <h1 className="font-dm text-2xl text-communixPurple mb-4 mt-8">
           Lets get started!
         </h1>
-        <label
-          htmlFor="username"
-          className="text-communixPurple text-left mb-2"
-        >
-          Paste a room name
-        </label>
-        <div className="flex flex-row align-center">
-          <div>
+        <div className="flex flex-row items-center gap-4">
+          <button
+            type="button"
+            onClick={startNewCall}
+            className="bg-communixGreen border-2 rounded-md px-4 py-1 boxShadow"
+          >
+            Start a new call
+          </button>
+          <p>Or</p>
+          <div className="flex items-center">
             <input
               onChange={(e) => setCallId(e.target.value)}
-              className="bg-communixWhite border-2 rounded-l-md border-communixPurple p-2 py-1 outline-none w-3/4 h-full"
+              placeholder="Paste a room name"
+              className="bg-communixWhite border-2 rounded-l-md border-communixPurple p-1 outline-none w-3/4"
             />
             <button
-              className="px-2 h-full bg-communixGreen rounded-r-lg disabled:bg-communixRed border-2 border-l-0 border-communixPurple"
+              className="px-2 py-1 bg-communixGreen rounded-r-lg disabled:bg-communixRed border-2 border-l-0 border-communixPurple"
               onClick={() => joinCall(callId)}
               disabled={callId?.length < 2}
             >
@@ -64,13 +67,6 @@ export default function Home() {
         <p className="text-communixPurple bg-communixWhite mb-4">
           {showError && "longer!"}
         </p>
-        <button
-          type="button"
-          onClick={startNewCall}
-          className="bg-communixGreen border-2 rounded-md px-4 py-1 w-1/3 mb-4 boxShadow"
-        >
-          Create a new call
-        </button>
       </div>
     </div>
   );
