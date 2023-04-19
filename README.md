@@ -7,6 +7,7 @@ This is a project for chingu.io and only intended for learning purposes.
 
 - [Overview](#overview)
   - [How does it work](#how-does-it-work)
+  - [Installation](#installation)
   - [Screenshot](#screenshot)
   - [Links](#links)
 - [Our process](#our-process)
@@ -16,13 +17,23 @@ This is a project for chingu.io and only intended for learning purposes.
   - [Useful resources](#useful-resources)
 - [Authors](#authors)
 
-## How does it work
+### How does it work
 
 1. Go to [https://v43-tier3-team-43.vercel.app/](https://v43-tier3-team-43.vercel.app/)
 2. Click on "Start a new call"
 3. Click on "Copy call id"
 4. On another computer, paste that id in the input [https://v43-tier3-team-43.vercel.app/](https://v43-tier3-team-43.vercel.app/)
 5. Click on "Join"
+
+### Installation
+
+```
+cd circle-meets
+
+npm install
+
+npm run dev
+```
 
 ### Screenshot
 
