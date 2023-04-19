@@ -23,8 +23,9 @@ export default function VideoCall() {
   const peerConnection = useRef(null);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
-  const [cameraActive, setCameraActive] = useState(false);
+  const [cameraActive, setCameraActive] = useState(true);
   const [micActive, setMicActive] = useState(true);
+  const [remoteCameraActive, setRemoteCameraActive] = useState(false);
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
   const [callId, setCallId] = useState(router.query.id);
@@ -43,12 +44,12 @@ export default function VideoCall() {
     };
 
     peerConnection.current = new RTCPeerConnection(servers);
-    startWebcam(); // Init PC as well as local stream
-    if (router.query.id) {
-      startWebcam().then(() => {
+
+    startWebcam().then(() => {
+      if (router.query.id) {
         joinCall();
-      });
-    }
+      }
+    });
 
     return () => {
       // peerConnection.current.close();
@@ -79,6 +80,18 @@ export default function VideoCall() {
     peerConnection.current.ontrack = (event) => {
       event.streams[0].getTracks().forEach((track) => {
         _remoteStream.addTrack(track);
+        if (track.kind === "video") {
+          // Handle video track mute/unmute events
+          track.onmute = () => {
+            console.log("Remote peer stopped their video");
+            setRemoteCameraActive(false);
+          };
+
+          track.onunmute = () => {
+            console.log("Remote peer restarted their video");
+            setRemoteCameraActive(true);
+          };
+        }
       });
     };
 
@@ -88,14 +101,35 @@ export default function VideoCall() {
     setRemoteStream(_remoteStream);
   };
 
-  const toggleWebcam = () => {
-    setCameraActive(!cameraActive);
+  const toggleRemoteVideo = () => {
+    setRemoteCameraActive(!remoteCameraActive);
+  };
+
+  const toggleVideo = () => {
     if (localVideoRef.current) {
       const stream = localVideoRef.current.srcObject;
       if (stream) {
         const videoTracks = stream.getVideoTracks();
         if (videoTracks.length > 0) {
-          videoTracks[0].enabled = !videoTracks[0].enabled;
+          if (!cameraActive) {
+            // Restart the video
+            navigator.mediaDevices
+              .getUserMedia({ video: true })
+              .then((newStream) => {
+                const newVideoTrack = newStream.getVideoTracks()[0];
+                const sender = peerConnection.current.getSenders().find((s) => {
+                  return s.track && s.track.kind === "video";
+                });
+                sender.replaceTrack(newVideoTrack);
+                localVideoRef.current.srcObject = newStream;
+                setCameraActive(true);
+              })
+              .catch((err) => console.error("Error restarting video:", err));
+          } else {
+            // Stop the video and the connection with the camera
+            videoTracks[0].stop();
+            setCameraActive(false);
+          }
         }
       }
     }
@@ -189,7 +223,6 @@ export default function VideoCall() {
 
     offerCandidates.onSnapshot((snapshot) => {
       snapshot.docChanges().forEach((change) => {
-        console.log(change);
         if (change.type === "added") {
           let data = change.doc.data();
           peerConnection.current.addIceCandidate(new RTCIceCandidate(data));
@@ -242,7 +275,7 @@ export default function VideoCall() {
           <img src="/logout.png" alt="leave chat" className="h-8 p-2 py-1" />
         </button>
         <button
-          onClick={toggleWebcam}
+          onClick={toggleVideo}
           type="button"
           className="border-2 border-communixPurple rounded-md bg-communixRed"
         >
@@ -263,7 +296,6 @@ export default function VideoCall() {
       </div>
       <video
         autoPlay
-        muted
         ref={localVideoRef}
         className={
           cameraActive
@@ -283,14 +315,14 @@ export default function VideoCall() {
           autoPlay
           ref={remoteVideoRef}
           className={`h-80 aspect-video bg-communixGreen border-2 border-communixPurple ${
-            remoteStream ? "" : "hidden"
+            remoteCameraActive ? "" : "hidden"
           }`}
         />
         {/* ) : ( */}
         <img
           src="/shy2.png"
           alt="your partner is shy too"
-          className={`h-72 rounded-full ${remoteStream ? "hidden" : ""}`}
+          className={`h-72 rounded-full ${remoteCameraActive ? "hidden" : ""}`}
         />
         {/* )} */}
       </div>
