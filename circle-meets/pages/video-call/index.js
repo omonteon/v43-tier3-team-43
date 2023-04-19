@@ -43,7 +43,7 @@ export default function VideoCall() {
     };
 
     peerConnection.current = new RTCPeerConnection(servers);
-
+    startWebcam(); // Init PC as well as local stream
     if (router.query.id) {
       startWebcam().then(() => {
         joinCall();
@@ -86,6 +86,32 @@ export default function VideoCall() {
     remoteVideoRef.current.srcObject = _remoteStream;
     setLocalStream(_localStream);
     setRemoteStream(_remoteStream);
+  };
+
+  const toggleWebcam = () => {
+    setCameraActive(!cameraActive);
+    if (localVideoRef.current) {
+      const stream = localVideoRef.current.srcObject;
+      if (stream) {
+        const videoTracks = stream.getVideoTracks();
+        if (videoTracks.length > 0) {
+          videoTracks[0].enabled = !videoTracks[0].enabled;
+        }
+      }
+    }
+  };
+
+  const toggleMic = () => {
+    setMicActive(!micActive);
+    if (localVideoRef.current) {
+      const stream = localVideoRef.current.srcObject;
+      if (stream) {
+        const audioTracks = stream.getAudioTracks();
+        if (audioTracks.length > 0) {
+          audioTracks[0].enabled = !audioTracks[0].enabled;
+        }
+      }
+    }
   };
 
   // Create an offer
@@ -198,17 +224,14 @@ export default function VideoCall() {
       )}
       <div className="flex flex-col justify-end relative left-80 top-32 gap-1">
         <button
-          onClick={() => {
-            // TODO: Implement mute
-            console.log("Not implemented yet");
-          }}
+          onClick={toggleMic}
           type="button"
           className="border-2 border-communixPurple rounded-md bg-communixRed"
         >
           {micActive ? (
-            <img src="/mute.png" alt="toggle mic" className="h-8 p-2 py-1" />
-          ) : (
             <img src="/mic.png" alt="toggle mic" className="h-8 p-2 py-1" />
+          ) : (
+            <img src="/mute.png" alt="toggle mic" className="h-8 p-2 py-1" />
           )}
         </button>
         <button
@@ -219,27 +242,19 @@ export default function VideoCall() {
           <img src="/logout.png" alt="leave chat" className="h-8 p-2 py-1" />
         </button>
         <button
-          onClick={() => {
-            if (!localStream) {
-              setCameraActive(true);
-              startWebcam();
-            } else {
-              setCameraActive(!cameraActive);
-              // TODO: Implement stop webcam
-            }
-          }}
+          onClick={toggleWebcam}
           type="button"
           className="border-2 border-communixPurple rounded-md bg-communixRed"
         >
           {cameraActive ? (
             <img
-              src="/no-video.png"
+              src="/video-camera.png"
               alt="toggle camera"
               className="h-8 p-2 py-1"
             />
           ) : (
             <img
-              src="/video-camera.png"
+              src="/no-video.png"
               alt="toggle camera"
               className="h-8 p-2 py-1"
             />
