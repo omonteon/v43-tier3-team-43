@@ -292,6 +292,7 @@ export default function VideoCall() {
       </div>
       <video
         autoPlay
+        muted
         ref={localVideoRef}
         className={
           cameraActive
