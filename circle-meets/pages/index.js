@@ -51,7 +51,7 @@ export default function Home() {
           <div className="flex items-center">
             <input
               onChange={(e) => setCallId(e.target.value)}
-              placeholder="Paste a room name"
+              placeholder="Paste a room id"
               className="bg-communixWhite border-2 rounded-l-md border-communixPurple p-1 outline-none w-3/4"
             />
             <button

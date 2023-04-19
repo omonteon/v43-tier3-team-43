@@ -23,11 +23,10 @@ export default function VideoCall() {
   const peerConnection = useRef(null);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  const localStream = useRef(null);
   const [cameraActive, setCameraActive] = useState(true);
   const [micActive, setMicActive] = useState(true);
   const [remoteCameraActive, setRemoteCameraActive] = useState(false);
-  const [localStream, setLocalStream] = useState(null);
-  const [remoteStream, setRemoteStream] = useState(null);
   const [callId, setCallId] = useState(router.query.id);
 
   useEffect(() => {
@@ -52,16 +51,17 @@ export default function VideoCall() {
     });
 
     return () => {
-      // peerConnection.current.close();
-      // firebase.app().delete();
+      // Cleanup function to be called when the component is unmounted
+      // 1. Stop all media tracks
+      if (localStream.current) {
+        localStream.current.getTracks().forEach((track) => track.stop());
+      }
+      // 2. Close the RTCPeerConnection
+      if (peerConnection.current) {
+        peerConnection.current.close();
+      }
     };
   }, []);
-
-  useEffect(() => {
-    if (localStream) {
-      setCameraActive(true);
-    }
-  }, [localStream]);
 
   // Setup media sources
   const startWebcam = async () => {
@@ -97,8 +97,7 @@ export default function VideoCall() {
 
     localVideoRef.current.srcObject = _localStream;
     remoteVideoRef.current.srcObject = _remoteStream;
-    setLocalStream(_localStream);
-    setRemoteStream(_remoteStream);
+    localStream.current = _localStream;
   };
 
   const toggleRemoteVideo = () => {
@@ -121,7 +120,8 @@ export default function VideoCall() {
                   return s.track && s.track.kind === "video";
                 });
                 sender.replaceTrack(newVideoTrack);
-                localVideoRef.current.srcObject = newStream;
+                stream.removeTrack(videoTracks[0]);
+                stream.addTrack(newVideoTrack);
                 setCameraActive(true);
               })
               .catch((err) => console.error("Error restarting video:", err));
@@ -243,13 +243,9 @@ export default function VideoCall() {
         </h2> */}
       {router.query.id ? null : (
         <div className="flex flex-col gap-2 mt-4">
-          <p>{!localStream ? "Start webCam first" : null}</p>
           <button
-            className={`border-2 border-communixPurple rounded-md bg-communixRed py-2 px-4 ${
-              !localStream ? "opacity-80" : ""
-            }`}
+            className={`border-2 border-communixPurple rounded-md bg-communixRed py-2 px-4`}
             onClick={createCallId}
-            disabled={!localStream}
           >
             Copy call ID
           </button>
@@ -310,7 +306,6 @@ export default function VideoCall() {
       )}
 
       <div className="h-80 aspect-video bg-communixGreen border-2 border-communixPurple flex justify-center items-center">
-        {/* {remoteStream ? ( */}
         <video
           autoPlay
           ref={remoteVideoRef}
@@ -318,13 +313,11 @@ export default function VideoCall() {
             remoteCameraActive ? "" : "hidden"
           }`}
         />
-        {/* ) : ( */}
         <img
           src="/shy2.png"
           alt="your partner is shy too"
           className={`h-72 rounded-full ${remoteCameraActive ? "hidden" : ""}`}
         />
-        {/* )} */}
       </div>
     </div>
   );
