@@ -1,8 +1,21 @@
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
-import useSocket from "../../hooks/useSocket";
-import Image from "next/image";
+import firebase from "firebase/app";
+import "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_APP_ID,
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+//const firestore = firebase.firestore();
 
 const ICE_SERVERS = {
   iceServers: [
@@ -13,10 +26,76 @@ const ICE_SERVERS = {
 };
 
 const Room = () => {
-  useSocket();
   const [micActive, setMicActive] = useState(true);
   const [cameraActive, setCameraActive] = useState(false);
+  const [localStream, setLocalStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState(null);
   const [name, setName] = useState("");
+
+  const peerConnection = useRef(null);
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+
+  useEffect(() => {
+    const servers = {
+      iceServers: [
+        {
+          urls: [
+            "stun:stun1.l.google.com:19302",
+            "stun:stun2.l.google.com:19302",
+          ],
+        },
+      ],
+      iceCandidatePoolSize: 10,
+    };
+
+    peerConnection.current = new RTCPeerConnection(servers);
+    createCallId()
+  }, []);
+
+  const createCallId = async () => {
+    // Reference Firestore collections for signaling
+    const callDoc = firestore.collection("calls").doc();
+    const offerCandidates = callDoc.collection("offerCandidates");
+    const answerCandidates = callDoc.collection("answerCandidates");
+  
+    // Get candidates for caller, save to db
+    peerConnection.current.onicecandidate = (event) => {
+      event.candidate && offerCandidates.add(event.candidate.toJSON());
+    };
+  
+    // Create offer
+    const offerDescription = await peerConnection.current.createOffer();
+    await peerConnection.current.setLocalDescription(offerDescription);
+  
+    const offer = {
+      sdp: offerDescription.sdp,
+      type: offerDescription.type,
+    };
+  
+    await callDoc.set({ offer });
+  
+    // Listen for remote answer
+    callDoc.onSnapshot((snapshot) => {
+      const data = snapshot.data();
+      if (!peerConnection.current.currentRemoteDescription && data?.answer) {
+        const answerDescription = new RTCSessionDescription(data.answer);
+        peerConnection.current.setRemoteDescription(answerDescription);
+      }
+    });
+  
+    // When answered, add candidate to peer connection
+    answerCandidates.onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const candidate = new RTCIceCandidate(change.doc.data());
+          peerConnection.current.addIceCandidate(candidate);
+        }
+      });
+    });
+  };
+
+
 
   const router = useRouter();
   const userVideoRef = useRef();
@@ -27,58 +106,15 @@ const Room = () => {
   const hostRef = useRef(false);
 
   const { id: roomName } = router.query;
+
   useEffect(() => {
     window ? localStorage.getItem("nickname") : ""
-  }, []);
-  useEffect(() => {
-    socketRef.current = io();
-    // First we join a room
-    socketRef.current.emit("join", roomName);
+    console.log(remoteStream)
 
-    socketRef.current.on("joined", handleRoomJoined);
-    // If the room didn't exist, the server would emit the room was 'created'
-    socketRef.current.on("created", handleRoomCreated);
-    // Whenever the next person joins, the server emits 'ready'
-    socketRef.current.on("ready", initiateCall);
+  }, [remoteStream]);
 
-    // Emitted when a peer leaves the room
-    socketRef.current.on("leave", onPeerLeave);
 
-    // If the room is full, we show an alert
-    socketRef.current.on("full", () => {
-      window.location.href = "/";
-    });
-
-    // Event called when a remote user initiating the connection and
-    socketRef.current.on("offer", handleReceivedOffer);
-    socketRef.current.on("answer", handleAnswer);
-    socketRef.current.on("ice-candidate", handlerNewIceCandidateMsg);
-
-    // clear up after
-    return () => socketRef.current.disconnect();
-  }, [roomName]);
-
-  const handleRoomJoined = () => {
-    navigator.mediaDevices
-      .getUserMedia({
-        audio: true,
-        video: { width: 500, height: 500 },
-      })
-      .then((stream) => {
-        /* use the stream */
-        userStreamRef.current = stream;
-        userVideoRef.current.srcObject = stream;
-        userVideoRef.current.onloadedmetadata = () => {
-          userVideoRef.current.play();
-        };
-        socketRef.current.emit("ready", roomName);
-      })
-      .catch((err) => {
-        /* handle the error */
-        console.log("error", err);
-      });
-  };
-
+  // is this legacy from ethan??
   const handleRoomCreated = () => {
     hostRef.current = true;
     navigator.mediaDevices
@@ -210,24 +246,82 @@ const Room = () => {
     peerVideoRef.current.srcObject = event.streams[0];
   };
 
-  const toggleMediaStream = (type, state) => {
-    userStreamRef.current.getTracks().forEach((track) => {
-      if (track.kind === type) {
-        // eslint-disable-next-line no-param-reassign
-        track.enabled = !state;
-      }
-    });
+  async function toggleMediaStream(type, state) {
+    console.log("hello??")
+    if (localStream) {
+      localStream.current.getTracks().forEach((track) => {
+        if (track.kind === type) {
+          console.log("track", track)  
+          // eslint-disable-next-line no-param-reassign
+          track.enabled = !state;
+        }
+      });
+    } /*else { 
+      console.log("no local stream")
+      const options = {type: state}
+      const _localStream = await navigator.mediaDevices.getUserMedia({...options});
+      _localStream.getTracks().forEach((track) => {
+        peerConnection.current.addTrack(track, _localStream);
+      });
+      localVideoRef.current.srcObject = _localStream;
+      setLocalStream(_localStream);
+
+    }
+    */
+    
   };
 
   const toggleMic = () => {
     toggleMediaStream("audio", micActive);
     setMicActive((prev) => !prev);
+    console.log("mic is now", micActive)
   };
 
-  const toggleCamera = () => {
+  async function toggleCamera() {
+    // toggleMediaStream("video", cameraActive);
+    // setCameraActive((prev) => !prev);
+    //if (!cameraActive) startWebcam()
     toggleMediaStream("video", cameraActive);
-    setCameraActive((prev) => !prev);
+    /* else {
+      localVideoRef.current.srcObject.getTracks().forEach((track) => {
+        track.stop();
+      });
+
+    }
+    */
+    setCameraActive((prev) => !prev)
   };
+
+
+  const startWebcam = async () => {
+    const _localStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    });
+    const _remoteStream = new MediaStream();
+
+    // Push tracks from local stream to peer connection
+    _localStream.getTracks().forEach((track) => {
+      peerConnection.current.addTrack(track, _localStream);
+    });
+
+    // Pull tracks from remote stream, add to video stream
+    peerConnection.current.ontrack = (event) => {
+      event.streams[0].getTracks().forEach((track) => {
+        _remoteStream.addTrack(track);
+      });
+    };
+
+    localVideoRef.current.srcObject = _localStream;
+    if (remoteVideoRef && remoteVideoRef.current) remoteVideoRef.current.srcObject = _remoteStream;
+    setLocalStream(_localStream);
+    setRemoteStream(_remoteStream);
+    // webcamVideo.srcObject = localStream;
+    // remoteVideo.srcObject = remoteStream;
+  };
+
+
+
 
   const leaveRoom = () => {
     socketRef.current.emit("leave", roomName); // Let's the server know that user has left the room.
@@ -253,23 +347,31 @@ const Room = () => {
     router.push("/");
   };
 
+
+
+
   return (
     <div className="white-grid flex flex-col items-center">
+      <h1>{cameraActive ? "true" : "false"}</h1>
       <h2 className="absolute font-dm text-communixPurple left-5 text-3xl">{name}</h2>
       <div className="flex flex-col justify-end relative left-80 top-32">
-        <button onClick={toggleMic} type="button" className="border-2 border-communixPurple rounded-md bg-communixRed mr-4">
+        <button onClick={toggleMic} type="button" className="border-2 border-communixPurple rounded-md bg-communixRed">
           {micActive ? <img src="/mute.png" alt="toggle mic" className="h-8 p-2 py-1" /> : <img src="/mic.png" alt="toggle mic" className="h-8 p-2 py-1" />}
         </button>
-        <button onClick={leaveRoom} type="button" className="border-2 border-communixPurple rounded-md bg-communixRed mr-4">
+        <button onClick={leaveRoom} type="button" className="border-2 border-communixPurple rounded-md bg-communixRed">
           <img src="/logout.png" alt="leave chat" className="h-8 p-2 py-1" />
         </button>
         <button onClick={toggleCamera} type="button" className="border-2 border-communixPurple rounded-md bg-communixRed">
           {cameraActive ? <img src="/no-video.png" alt="toggle camera" className="h-8 p-2 py-1" /> : <img src="/video-camera.png" alt="toggle camera" className="h-8 p-2 py-1" />}
         </button>
+
       </div>
-      <video autoPlay ref={userVideoRef} className={cameraActive ? "bg-white border-2 border-communixRed h-80 aspect-video" : "hidden"} />
+      <video
+        autoPlay
+        ref={localVideoRef}
+        className={cameraActive ? "bg-white border-2 border-communixRed h-80 aspect-video" : "hidden"} />
       {!cameraActive &&
-        <div className="bg-white flex flex-col justify-end items-center border-2 border-communixRed h-80  aspect-video">
+        <div className="bg-white flex flex-col justify-end items-center border-2 border-communixRed h-80 aspect-video">
           <img
             src="/shy.png"
             alt="shy person"
@@ -277,7 +379,12 @@ const Room = () => {
           />
         </div>}
 
-      <video autoPlay ref={peerVideoRef} className="h-80 aspect-video bg-communixGreen border-2 border-communixPurple" />
+        <div className="h-80 aspect-video bg-communixGreen border-2 border-communixPurple flex justify-center items-center">
+        {remoteStream ?       
+          <video autoPlay ref={remoteVideoRef} className="h-80 aspect-video bg-communixGreen border-2 border-communixPurple" />
+          : <img src="/shy2.png" alt="your partner is shy too" className="h-72 rounded-full" />
+        }
+</div>
 
     </div>
   );

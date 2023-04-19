@@ -1,12 +1,8 @@
-import Image from "next/image";
-import { Inter } from "next/font/google";
-import firebase from "firebase/app";
-import "firebase/firestore";
-import { useEffect, useRef, useState } from "react";
-
 import Head from "next/head";
 import { useRouter } from "next/router";
-import Login from "./components/login-btn";
+import { useState } from "react";
+import firebase from "firebase/app";
+
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_API_KEY,
@@ -20,157 +16,79 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
-const firestore = firebase.firestore();
-
-const inter = Inter({ subsets: ["latin"] });
-
 
 export default function Home() {
-  const [callId, setCallId] = useState("");
-  const router = useRouter();
-
-
-  const [parent, setParent] = useState(null);
-  const [nickName, setName] = useState("");
   const [showError, setShowError] = useState(false);
+  const [roomId, setRoomId] = useState("");
 
-  useEffect(() => {
-    const servers = {
-      iceServers: [
-        {
-          urls: [
-            "stun:stun1.l.google.com:19302",
-            "stun:stun2.l.google.com:19302",
-          ],
-        },
-      ],
-      iceCandidatePoolSize: 10,
-    };
+  const router = useRouter();
+ 
 
+ 
+  function copyRoomId(text) {
+    navigator.clipboard.writeText(text).then(
+      function () {
+        alert("Id was copied successfully!");
+      },
+      function (err) {
+        alert("Error: Could not copy id");
+      }
+    )
 
-    peerConnection.current = new RTCPeerConnection(servers);
+  }
 
-    return () => {
-      // peerConnection.current.close();
-      // firebase.app().delete();
-    };
-  }, []);
-
-  // Setup media sources
-  const startWebcam = async () => {
-    const _localStream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-    const _remoteStream = new MediaStream();
-
-    // Push tracks from local stream to peer connection
-    _localStream.getTracks().forEach((track) => {
-      peerConnection.current.addTrack(track, _localStream);
-    });
-
-    // Pull tracks from remote stream, add to video stream
-    peerConnection.current.ontrack = (event) => {
-      event.streams[0].getTracks().forEach((track) => {
-        _remoteStream.addTrack(track);
-      });
-    };
-
-    localVideoRef.current.srcObject = _localStream;
-    remoteVideoRef.current.srcObject = _remoteStream;
-    setLocalStream(_localStream);
-    setRemoteStream(_remoteStream);
-    // webcamVideo.srcObject = localStream;
-    // remoteVideo.srcObject = remoteStream;
-
-  };
-
-  const joinCall = () => {
-    router.push(`/video-call?id=${callId}`);
+  const joinRoom = () => {
+    if (!roomId) {
+      
+    }
+    router.push(`/room/${roomId || Math.random().toString(36).slice(2)}`);
   };
 
   return (
     <div className="flex flex-col min-h-screen white-grid">
-    <Head>
-      <title>Communix</title>
-      <meta name="description" content="Video chatting for nerds" />
-      <link rel="icon" href="/favicon.ico" />
+      <Head>
+        <title>Communix</title>
+        <meta name="description" content="Video chatting for nerds" />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex flex-col p-4 justify-around text-center md:p-0 md:grid md:grid-rows-12 md:grid-cols-8 h-screen">
-        <header className="bg-communixPurple padding-8 col-start-2 row-start-1 col-span-3 row-span-2 py-8 border-2 border-communixRed flex flex-col justify-center items-center">
+      <header className="bg-communixPurple padding-8 col-start-2 row-start-1 col-span-3 row-span-2 py-8 border-2 border-communixRed flex flex-col justify-center items-center">
         <h1 className="font-dm text-5xl tracking-wider ">
-        <span className="text-communixYellow">Com</span>
-        <span className="text-communixGreen">mu</span>
-        <span className="text-communixRed">nix</span>
-      </h1>
+          <span className="text-communixYellow">Com</span>
+          <span className="text-communixGreen">mu</span>
+          <span className="text-communixRed">nix</span>
+        </h1>
       </header>
       <div className={showError ? "bg-communixRed col-start-6 row-start-3 col-span-2 row-span-4 flex flex-col items-center border-2 border-communixPurple" : "bg-communixYellow col-start-6 row-start-3 col-span-2 row-span-4 flex flex-col items-center border-2 border-communixRed"}>
         <h1 className="font-dm text-2xl text-communixPurple mb-4 mt-8">Lets get started!</h1>
-         
-      </div>
-      <div className="flex flex-col items-center mt-4">
-        <button
-          className="px-2 py-1 text-communixWhite bg-communixGreen rounded-lg shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-          onClick={startWebcam}
-          disabled={localStream}
-        >
-          Start Webcam
-        </button>
-        <div className="flex mt-4">
-          <button
-            className="px-2 py-1 text-communixWhite bg-communixGreen rounded shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-            onClick={createCallId}
-            disabled={!localStream}
-          >
-            Copy a new call ID
-          </button>
-        </div>
-        <div className="flex mt-4">
-          <label
-            className="px-2 py-1 text-communixWhite bg-communixPurple rounded-l-lg"
-            htmlFor="call-id"
-          >
-            Call ID
-          </label>
+        <label htmlFor="username" className="text-communixPurple text-left mb-2">Paste a room name</label>
+        <div className="flex flex-row align-center">
+          <div>
           <input
-            type="text"
-            id="call-id"
-            className="px-2 py-1 text-communixPurple bg-communixWhite focus:outline-none focus:ring-2 focus:ring-communixPurple focus:ring-offset-2 w-64"
-            placeholder="Enter call ID"
-            onChange={(e) => setCallId(event.target.value)}
+            onChange={(e) => setRoomId(e.target.value)}
+            className="bg-communixWhite border-2 rounded-l-md border-communixPurple p-2 py-1 outline-none w-3/4 h-full"
           />
           <button
-            className="px-2 py-1 text-communixWhite bg-communixGreen rounded-r-lg shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-            onClick={joinCall}
-            disabled={!localStream}
-          >
-            Join Call
+            className="px-2 h-full bg-communixGreen rounded-r-lg disabled:bg-communixRed border-2 border-l-0 border-communixPurple"
+            onClick={() => joinRoom(roomId)}
+            disabled={roomId.length > 2 ? false : true}> 
+          Join
           </button>
+
         </div>
-        <div className="flex mt-4">
-          <button
-            className="px-2 py-1 text-communixWhite bg-communixRed rounded shadow-lg hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-            onClick={endCall}
-            disabled={!callId}
-          >
-            End Call
-          </button>
+        <button
+          className="px-2 h-full rounded-r-lg h-10 self-center"
+          onClick={() => copyRoomId(roomId)}
+        ><img src="/copy.png" alt="copy" className="h-6" /></button>
         </div>
+        
+        <p className="text-communixPurple bg-communixWhite mb-4">{showError && "longer!"}</p>
+        <button type="button" onClick={() => roomId.length > 2 ? joinRoom() : errorMessage()} className="bg-communixGreen border-2 rounded-md px-4 py-1 w-1/3 mb-4 boxShadow">
+          Create a new room
+        </button>
+
       </div>
-      </main>
+
 
     </div>
-  )
-}
-
-
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(
-    function () {
-      alert("Id was copied successfully!");
-    },
-    function (err) {
-      alert("Error: Could not copy id");
-    }
   )
 }
