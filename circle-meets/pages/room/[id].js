@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import useSocket from "../../hooks/useSocket";
 import firebase from "firebase/app";
 import "firebase/firestore";
-import { start } from "repl";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_API_KEY,
