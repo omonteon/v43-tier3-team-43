@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { Inter } from "next/font/google";
 import firebase from "firebase/app";
 import "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
@@ -18,8 +17,6 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const firestore = firebase.firestore();
-
-const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const router = useRouter();
