@@ -43,7 +43,7 @@ export default function Home() {
           <button
             type="button"
             onClick={startNewCall}
-            className="bg-communixGreen border-2 rounded-md px-4 py-1 boxShadow"
+            className="bg-communixGreen border-2 rounded-md px-4 py-1 boxShadow border-communixPurple"
           >
             Start a new call
           </button>
@@ -52,7 +52,7 @@ export default function Home() {
             <input
               onChange={(e) => setCallId(e.target.value)}
               placeholder="Paste a room id"
-              className="bg-communixWhite border-2 rounded-l-md border-communixPurple p-1 outline-none w-3/4"
+              className="bg-communixWhite text-communixPurple border-2 rounded-l-md border-communixPurple p-1 outline-none w-3/4"
             />
             <button
               className="px-2 py-1 bg-communixGreen rounded-r-lg disabled:bg-communixRed border-2 border-l-0 border-communixPurple"
