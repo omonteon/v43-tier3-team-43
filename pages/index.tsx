@@ -56,7 +56,7 @@ export default function Home() {
             />
             <button
               className="px-2 py-1 bg-communixGreen rounded-r-lg disabled:bg-communixRed border-2 border-l-0 border-communixPurple"
-              onClick={() => joinCall(callId)}
+              onClick={() => joinCall()}
               disabled={callId?.length < 2}
             >
               Join

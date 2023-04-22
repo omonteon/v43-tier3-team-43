@@ -27,7 +27,7 @@ export default function VideoCall() {
   const [cameraActive, setCameraActive] = useState(true);
   const [micActive, setMicActive] = useState(true);
   const [remoteCameraActive, setRemoteCameraActive] = useState(false);
-  const [callId, setCallId] = useState(router.query.id);
+  const [callId, setCallId] = useState(router.query.id?.toString());
 
   useEffect(() => {
     const servers = {
